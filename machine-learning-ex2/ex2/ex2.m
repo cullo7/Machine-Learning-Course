@@ -33,7 +33,9 @@ X = data(:, [1, 2]); y = data(:, 3);
 fprintf(['Plotting data with + indicating (y = 1) examples and o ' ...
          'indicating (y = 0) examples.\n']);
 
-plotData(X, y);
+%% plotData(X, y);
+
+plotData(X,y);
 
 % Put some labels 
 hold on;
@@ -43,6 +45,7 @@ ylabel('Exam 2 score')
 
 % Specified in plot order
 legend('Admitted', 'Not admitted')
+
 hold off;
 
 fprintf('\nProgram paused. Press enter to continue.\n');
