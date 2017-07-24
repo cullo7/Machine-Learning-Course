@@ -23,10 +23,10 @@ reg = (lambda ./ (2 * m)) * (sum(theta(2:size(theta),:).^2));
 
 J = sum(-y.*log(h) - (1 - y).*log(1 - h)) / m + reg;
 
-[f,a] = costFunction(theta, X, y);
+grad =  sum((h - y).*X) / m;
 
 theta(1) = 0;
-grad = a' + (lambda/m)*theta;
+grad = grad' + (lambda/m)*theta;
 
 % =============================================================
 
