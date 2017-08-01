@@ -16,11 +16,9 @@ function [J grad] = nnCostFunction(nn_params, ...
 
 % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
 % for our 2 layer neural network
-Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
-                 hidden_layer_size, (input_layer_size + 1));
+Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), hidden_layer_size, (input_layer_size + 1));
 
-Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
-                 num_labels, (hidden_layer_size + 1));
+Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end),num_labels, (hidden_layer_size + 1));
 
 % Setup some useful variables
 m = size(X, 1);
@@ -61,36 +59,41 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
-y1 = zeros(size(y,1), 10);
+y1 = zeros(size(y,1), num_labels);
 for k = 1:m
     y1(k, y(k)) = 1;
     
 end
 y = y1;
+
 for n = 1:m
+    a_1 = [1; X(n, :)'];
+    z_2 = Theta1 * a_1;
+    a_2 = [1; sigmoid(z_2)];
+    z_3 = Theta2 * a_2;
+    a_3 = sigmoid(z_3);
     
-    a1 = [X(n, :) 1];
-    a2 = [sigmoid(a1 * Theta1') 1];
-    a3 = sigmoid(a2 * Theta2');
-    s =  sum(-y(n,:).*log(a3) - (1-y(n,:)).*log(1-a3));
-    J = J + s;
+    J = J + sum(-y(n, :)*log(a_3) - (1 - y(n, :))*log(1 - a_3)) / m;
+    
+    delta_3 = (a_3 - y(n, :)');
+    delta_2 = (Theta2' * delta_3) .* [1 ;sigmoidGradient(z_2)];
+    delta_2 = delta_2(2:end);
+    
+    Theta1_grad = Theta1_grad + delta_2 * a_1' / m;
+    Theta2_grad = Theta2_grad + delta_3 * a_2' / m;
 end
 
-J = J/m;
-
-
-
-
-
-
-
-
+Regularization = (lambda / (2 * m)) * (sum(sum(Theta1(:,2:(size(Theta1, 2))).^2)) + sum(sum(Theta2(:, 2:size(Theta2, 2)).^2)));
+J = J + Regularization;
 
 % -------------------------------------------------------------
 
 % =========================================================================
 
 % Unroll gradients
+Theta1_grad = Theta1_grad + (lambda / m) * [zeros(size(Theta1,1), 1) Theta1(:, 2:end)];
+Theta2_grad = Theta2_grad + (lambda / m) * [zeros(size(Theta2,1), 1) Theta2(:, 2:end)];
+
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
 
